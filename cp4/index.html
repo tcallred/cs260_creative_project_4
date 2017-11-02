@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font: 13px Helvetica, Arial;
+        }
+        
+        form {
+            background: #000;
+            padding: 3px;
+            width: 50%;
+        }
+        
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+        
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+        
+        .messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 50%;
+        }
+        
+        .messages li {
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+    $(function() {
+        var socket = io();
+        $('#form-left').submit(function() {
+            socket.emit('chat message-left', $('#m-left').val());
+            $('#m-left').val('');
+            return false;
+        });
+        socket.on('chat message-left', function(msg) {
+            $('#messages-left').append($('<li>').text(msg));
+        });
+        $('#form-right').submit(function() {
+            socket.emit('chat message-right', $('#m-right').val());
+            $('#m-right').val('');
+            return false;
+        });
+        socket.on('chat message-right', function(msg) {
+            $('#messages-right').append($('<li>').text(msg));
+        });
+    });
+</script>
+
+<body>
+    <ul class="messages" id="messages-left"></ul>
+    <form id="form-left" action="">
+        <input id="m-left" autocomplete="off" /><button>Send</button>
+    </form>
+    <ul class="messages" id="messages-right"></ul>
+    <form id="form-right" action="">
+        <input id="m-right" autocomplete="off" /><button>Send</button>
+    </form>
+</body>
+
+</html>
