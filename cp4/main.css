@@ -1,0 +1,14 @@
+.panel-body {
+   max-height: 55%;
+   min-height: 55%;
+   overflow-y: scroll;
+}
+.panel { 
+    border-radius:0;
+    transition: box-shadow 0.5s;
+}
+
+.panel-footer {
+    background-color: #fff;
+}
+
