@@ -1,87 +1,151 @@
 <html>
-<head>
-<link rel="stylesheet" type="text/css" href="main.css">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<title>Debate Box</title>
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-<script>
-    $(function() {
-        var socket = io();
-        $('#form-left').submit(function() {
-            socket.emit('chat message-left', $('#m-left').val());
-            $('#m-left').val('');
-            return false;
-        });
-        socket.on('chat message-left', function(msg) {
-            $('#messages-left').append($('<li>').text(msg));
-        });
-        $('#form-right').submit(function() {
-            socket.emit('chat message-right', $('#m-right').val());
-            $('#m-right').val('');
-            return false;
-        });
-        socket.on('chat message-right', function(msg) {
-            $('#messages-right').append($('<li>').text(msg));
-        });
-    });
-</script>
-<style>
-.panel-body {
-   max-height: 55%;
-   min-height: 55%;
-   overflow-y: scroll;
-}
-</style>
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <title>Debate Box</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+        $(document).ready(function() {
+            $.get("/topic", function(data) {
+                $("#topic").append('<strong>' + data + '</strong>');
+            });
+        })
+        $(function() {
+            var socket = io();
+            $('#form-left').submit(function() {
+                socket.emit('chat message-left', $('#m-left').val());
+                $('#m-left').val('');
+                return false;
+            });
+            socket.on('chat message-left', function(msg) {
+                $('#messages-left').append($('<li>').text(msg));
+                $("#left-pan").scrollTop($("#left-pan")[0].scrollHeight);
+            });
+            $('#form-right').submit(function() {
+                socket.emit('chat message-right', $('#m-right').val());
+                $('#m-right').val('');
+                return false;
+            });
+            socket.on('chat message-right', function(msg) {
+                $('#messages-right').append($('<li>').text(msg));
+                $("#right-pan").scrollTop($("#right-pan")[0].scrollHeight);
+            });
+            socket.on('new topic', function() {
+                $.get("/topic", function(data) {
+                    $("#topic").html('Topic: <strong>' + data + '</strong>');
+                });
+                $('#messages-left').append($('<h5>').text('-- NEW TOPIC--'));
+                $('#messages-right').append($('<h5>').text('-- NEW TOPIC--'));
+            })
+        });
+    </script>
+
+    <style>
+        .panel-body {
+            max-height: 55%;
+            min-height: 55%;
+            overflow-y: scroll;
+        }
+        
+        .panel-body::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            background-color: #F5F5F5;
+        }
+        
+        .panel-body::-webkit-scrollbar {
+            width: 12px;
+            background-color: #F5F5F5;
+        }
+        
+        .panel-body::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+            background-color: rgb(112, 112, 112);
+        }
+        
+        ul {
+            padding: 0px;
+        }
+        
+        li {
+            list-style: none;
+        }
+        
+        #left-pan li {
+            text-align: right;
+        }
+        
+        #left-pan li:nth-child(odd) {
+            background-color: rgb(200, 255, 200);
+        }
+        
+        #right-pan li {
+            text-align: left;
+        }
+        
+        #right-pan li:nth-child(odd) {
+            background-color: rgb(255, 200, 200);
+        }
+        
+        input {
+            margin-bottom: 1em;
+        }
+    </style>
 </head>
 
-<body>
-<div class="container">
-  <h1>Welcome to Debate Box</h1>
-  <h4>Topic: </h4>    
-     <div class="row">
-       <div class="col-sm-6">
-         <div class="panel panel-default text-center" style="border: 1px solid #66ff66 !important;">
-           <div class="panel-heading" style="background: #66ff66 !important;">
-             <h2>Agree</h2>
-           </div>
-           <div class="panel-body">
-             <ul id="messages-left"></ul>
-           </div>
-           <div class="panel-footer" style="background: #66ff66 !important;">
-             <form>
-                Username: <input type="text" id="inUsernameAg"/>
-                Comment: <input type="text" id="inAgree"/>
-                <p></p>
-                <button id="submitAgree" onclick="">Enter</button>
-             </form>
-           </div>
-         </div> 
-       </div>
-       <div class="col-sm-6">
-         <div class="panel panel-default text-center" style="border: 1px solid #ff8080 !important;">
-           <div class="panel-heading" style="background: #ff8080 !important;">
-             <h2>Disagree</h2>
-           </div>
-           <div class="panel-body">
-             <ul id="messages-right"></ul>
-           </div>
-           <div class="panel-footer" style="background: #ff8080 !important;">
-             <form>
-                Username: <input type="text" id="inUsernameDis"/>
-                Comment: <input type="text" id="inDisagree"/>
-                <p></p>
-                <button id="submitDisagree" onclick="">Enter</button>
-             </form>
-           </div>
-         </div> 
-       </div>
-     </div>
-</div>
+<body style="background-color:#404040">
+    <div class="container">
+        <h1 style="color:white;">Welcome to Debate Box</h1>
+
+        <h4 id="topic" style="color:white;">Topic: </h4>
+        <p style="color:#3894d1">Topics change every minute and a half.</p>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="panel panel-default text-center" style="border: 1px solid #43d643 !important;">
+                    <div class="panel-heading" style="background: #43d643 !important;">
+                        <h2>Agree</h2>
+                    </div>
+                    <div id="left-pan" class="panel-body">
+                        <ul id="messages-left">
+
+                        </ul>
+                    </div>
+                    <div class="panel-footer" style="background: #43d643 !important;">
+                        <form id="form-left" action="">
+                            <input placeholder="Comment" class="form-control" type="text" id="m-left" />
+
+                            <button class="btn" id="submitAgree">Enter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="panel panel-default text-center" style="border: 1px solid #d64343 !important;">
+                    <div class="panel-heading" style="background: #d64343 !important;">
+                        <h2>Disagree</h2>
+                    </div>
+                    <div id="right-pan" class="panel-body">
+                        <ul id="messages-right">
+
+                        </ul>
+                    </div>
+                    <div class="panel-footer" style="background: #d64343 !important;">
+                        <form id="form-right" action="">
+                            <input placeholder="Comment" class="form-control" type="text" id="m-right" />
+
+                            <button class="btn" id="submitDisagree">Enter</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>
